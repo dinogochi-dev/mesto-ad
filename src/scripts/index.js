@@ -258,7 +258,7 @@ const init = () => {
 
   initialData.forEach((cardData) => renderCard(cardData));
 
-  profileAvatar.style.backgroundImage = 'url(./src/images/avatar.png)';
+  profileAvatar.style.backgroundImage = 'url(./src/images/avatar.jpg)';
 };
 
 init();
