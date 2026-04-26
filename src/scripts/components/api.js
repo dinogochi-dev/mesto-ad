@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const config = {
-  baseUrl: "https://mesto.nomoreparties.co/v1/apf-cohort-202",
+  baseUrl: "https://mesto.nomoreparties.co/v1/apf-cohort-203",
   headers: {
     authorization: "bb823b11-f7ee-470e-bfe8-c6174a45c58f",
     "Content-Type": "application/json",
