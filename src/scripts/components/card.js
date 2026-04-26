@@ -1,6 +1,4 @@
-export const likeCard = (likeButton) => {
-  likeButton.classList.toggle("card__like-button_is-active");
-};
+import { changeLikeCardStatus } from './api.js';
 
 const getTemplate = () => {
   return document
@@ -9,7 +7,32 @@ const getTemplate = () => {
     .cloneNode(true);
 };
 
-export const createCardElement = (data, userId, { onPreviewPicture, onLikeIcon, onDeleteCard }) => {
+const isCardLiked = (likes, userId) => {
+  return likes.some((user) => user._id === userId);
+};
+
+const updateLikeCount = (likeCounter, likes) => {
+  likeCounter.textContent = likes.length;
+};
+
+export const likeCard = (likeButton, cardId, likeCounter, userId) => {
+  const isLiked = likeButton.classList.contains('card__like-button_is-active');
+
+  changeLikeCardStatus(cardId, isLiked)
+    .then((updatedCard) => {
+      likeButton.classList.toggle('card__like-button_is-active');
+      updateLikeCount(likeCounter, updatedCard.likes);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+};
+
+export const createCardElement = (
+  data,
+  { onPreviewPicture, onLikeIcon, onDeleteCard },
+  userId
+) => {
   const cardElement = getTemplate();
   const likeButton = cardElement.querySelector(".card__like-button");
   const likeCounter = cardElement.querySelector(".card__like-count"); 
@@ -20,24 +43,31 @@ export const createCardElement = (data, userId, { onPreviewPicture, onLikeIcon, 
   cardImage.alt = data.name;
   cardElement.querySelector(".card__title").textContent = data.name;
 
-  likeCounter.textContent = data.likes.length;
+  updateLikeCount(likeCounter, data.likes);
 
-  //Проверяем, лайкали ли мы эту карточку ранее (есть ли наш ID в массиве)
-  const isLikedByMe = data.likes.some((user) => user._id === userId);
-  if (isLikedByMe) {
-    likeButton.classList.add("card__like-button_is-active");
+  if (isCardLiked(data.likes, userId)) {
+    likeButton.classList.add('card__like-button_is-active');
   }
 
-  // Логика удаления (только свои)
-  if (data.owner._id !== userId) {
-    deleteButton.remove();
-  } else {
-    deleteButton.addEventListener("click", () => onDeleteCard(cardElement, data._id));
+  if (onLikeIcon) {
+    likeButton.addEventListener('click', () =>
+      onLikeIcon(likeButton, data._id, likeCounter, userId)
+    );
   }
 
-  likeButton.addEventListener("click", () => onLikeIcon(likeButton, data._id, likeCounter));
+  if (onDeleteCard) {
+    if (data.owner._id === userId) {
+      deleteButton.addEventListener('click', () => onDeleteCard(cardElement, data._id));
+    } else {
+      deleteButton.remove();
+    }
+  }
 
-  cardImage.addEventListener("click", () => onPreviewPicture({ name: data.name, link: data.link }));
+  if (onPreviewPicture) {
+    cardImage.addEventListener('click', () =>
+      onPreviewPicture({ name: data.name, link: data.link })
+    );
+  }
 
   return cardElement;
 };
