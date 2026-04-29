@@ -1,4 +1,4 @@
-import { createCardElement, likeCard } from './components/card.js';
+import { createCardElement, likeCard, removeCardElement } from './components/card.js';
 import {
   openModalWindow,
   closeModalWindow,
@@ -112,7 +112,6 @@ const handleAvatarFormSubmit = (evt) => {
     .then((userData) => {
       profileAvatar.style.backgroundImage = `url(${userData.avatar})`;
       avatarForm.reset();
-      clearValidation(avatarForm, validationConfig);
       closeModalWindow(avatarFormModalWindow);
     })
     .catch((err) => {
@@ -146,7 +145,6 @@ const handleCardFormSubmit = (evt) => {
       );
 
       cardForm.reset();
-      clearValidation(cardForm, validationConfig);
       closeModalWindow(cardFormModalWindow);
     })
     .catch((err) => {
@@ -170,7 +168,7 @@ const handleRemoveCardFormSubmit = (evt) => {
 
   deleteCardFromServer(cardToDelete)
     .then(() => {
-      cardElementToDelete.remove();
+      removeCardElement(cardElementToDelete);
       cardToDelete = null;
       cardElementToDelete = null;
       closeModalWindow(removeCardModalWindow);
@@ -228,6 +226,10 @@ const handleLogoClick = () => {
       });
 
       const uniqueUsers = Object.values(usersMap);
+      const userWithMaxCards = uniqueUsers.reduce(
+        (maxUser, user) => (user.count > maxUser.count ? user : maxUser),
+        { name: '-', count: 0 }
+      );
 
       usersStatsModalTitle.textContent = 'Статистика пользователей';
 
@@ -247,6 +249,12 @@ const handleLogoClick = () => {
         createInfoString(
           'Последняя создана:',
           formatDate(new Date(cards[0].createdAt))
+        )
+      );
+      usersStatsModalInfoList.append(
+        createInfoString(
+          'Максимум карточек на одного:',
+          `${userWithMaxCards.name} (${userWithMaxCards.count})`
         )
       );
 
