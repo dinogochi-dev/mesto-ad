@@ -15,6 +15,10 @@ const updateLikeCount = (likeCounter, likes) => {
   likeCounter.textContent = likes.length;
 };
 
+export const removeCardElement = (cardElement) => {
+  cardElement.remove();
+};
+
 export const likeCard = (likeButton, cardId, likeCounter, userId) => {
   const isLiked = likeButton.classList.contains('card__like-button_is-active');
 
